@@ -1,0 +1,29 @@
+﻿<ion-side-menus>
+    <ion-side-menu-content drag-content="false">
+        <ion-nav-bar class="bar-dark">
+            <ion-nav-back-button></ion-nav-back-button>
+            <ion-nav-buttons side="right">
+                <button menu-toggle="right" class="button button-icon icon ion-navicon"></button>
+            </ion-nav-buttons>
+        </ion-nav-bar>
+        <ion-nav-view animation="slide-right-left"></ion-nav-view>
+    </ion-side-menu-content>
+    <ion-side-menu side="right">
+        <header class="bar bar-header bar-dark">
+            <h1 class="title">Menu</h1>
+        </header>
+        <ion-content class="has-header">
+            <ion-list>
+                <ion-item nav-clear menu-close class="item" ui-sref="app.home">
+                    Home
+                </ion-item>
+                <ion-item nav-clear menu-close class="item" ui-sref="app.map">
+                    Map
+                </ion-item>
+                <ion-item nav-clear menu-close class="item" ui-sref="app.ble">
+                    Bluetooth
+                </ion-item>
+            </ion-list>
+        </ion-content>
+    </ion-side-menu>
+</ion-side-menus>
