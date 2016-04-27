@@ -1,0 +1,8 @@
+{
+  "name": "H2Observe",
+  "dependencies": {
+    "font-awesome": "^4.6.1",
+    "ui-leaflet": "^1.0.0",
+    "angular-simple-logger": "^0.1.7"
+  }
+}

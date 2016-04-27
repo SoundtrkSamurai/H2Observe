@@ -1,0 +1,46 @@
+﻿<!DOCTYPE html>
+<html ng-app="h2observe">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no, width=device-width">
+    <!-- <meta http-equiv="Content-Security-Policy" content="default-src 'self' data: gap: https://ssl.gstatic.com http://maps.google.com/* http://csi.gstatic.com/*; style-src 'self' 'unsafe-inline'; script-src http://maps.googleapis.com/* ; media-src *"> -->
+    <!--<script type="text/javascript" src="http://maps.googleapis.com/maps/api/js" ></script>-->
+
+    <title>H2Observe</title>
+    <link href="lib/ionic/css/ionic.css" rel="stylesheet">
+    <link href="css/app.css" rel="stylesheet">
+    <link href="lib/font-awesome/css/font-awesome.css" rel="stylesheet">
+    <link href="lib/leaflet/dist/leaflet.css" rel="stylesheet"/>
+    <link href="lib/locate.control/dist/L.Control.Locate.mapbox.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="bar bar-header bar-assertive" ng-controller="errorCtrl" ng-show="activeError" style="z-index: 1000">
+        <h1 class="title">Error: {{error}}</h1>
+        <button class="button icon ion-close-round" ng-click="dismissError()"></button>
+    </div>
+    <ion-nav-view></ion-nav-view>
+    <div class="spinner">
+        <ion-spinner icon="android" class="spinnerSpinner"></ion-spinner>
+        <div class="spinnerBackground"></div>
+    </div>
+
+    <!-- Other Library/Framework references -->
+    <script src="scripts/jquery-2.1.4.min.js"></script>
+    <script src="lib/ionic/js/ionic.bundle.js"></script>
+    <script src="lib/ngCordova/dist/ng-cordova.js"></script>
+    <script src="lib/nemlogger/dist/angular-simple-logger.min.js"></script>
+    <script src="lib/leaflet/dist/leaflet.js"></script>
+    <script src="lib/ui-leaflet/dist/ui-leaflet.min.js"></script>
+    <script src="lib/locate.control/dist/L.Control.Locate.min.js" charset="utf-8"></script>
+
+    <!-- Cordova references -->
+    <script src="cordova.js"></script>
+    <script src="scripts/platformOverrides.js"></script>
+
+    <!-- App references -->
+    <script src="scripts/index.js"></script>
+    <script src="app/services.js"></script>
+    <script src="app/controllers.js"></script>
+    <script src="app/app.js"></script>
+</body>
+</html>
