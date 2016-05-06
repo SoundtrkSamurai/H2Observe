@@ -80,8 +80,8 @@
         //};
     }])
 
-    .controller('bleCtrl', ['$scope', function ($scope) {
-
+    .controller('bluetoothController', [function () {
+        var controller = this;
     }])
 
     //errorCtrl managed the display of error messages bubbled up from other controllers, directives, myappService

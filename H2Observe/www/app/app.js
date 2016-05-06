@@ -2,7 +2,7 @@
     "use strict";
 
     angular.module("h2observe", ['ionic', 'myapp.controllers', 'myapp.services', 'ngCordova', 'ui-leaflet'])
-        .run(function ($ionicPlatform) {
+        .run(function ($state, $ionicPlatform) {
             $ionicPlatform.ready(function () {
                 if (window.cordova && window.cordova.plugins && window.cordova.plugins.Keyboard) {
                     cordova.plugins.Keyboard.hideKeyboardAccessoryBar(true);
@@ -10,6 +10,7 @@
                 if (window.StatusBar) {
                     StatusBar.styleDefault();
                 }
+                $state.go('app.map');
             });
         })
         .config(function ($stateProvider, $urlRouterProvider) {
@@ -28,7 +29,7 @@
             .state('app.ble', {
                 url: '/bluetooth',
                 templateUrl: 'app/templates/view-ble.html',
-                controller: 'bleCtrl'
+                controller: 'bluetoothController as bleCtrl'
             })
             .state("app.home", {
                 url: "/home",

@@ -23,5 +23,21 @@
         },
         "is_top_level": true,
         "variables": {}
+    },
+    "cordova-plugin-bluetoothle": {
+        "source": {
+            "type": "registry",
+            "id": "cordova-plugin-bluetoothle"
+        },
+        "is_top_level": true,
+        "variables": {}
+    },
+    "cordova-plugin-dialogs": {
+        "source": {
+            "type": "registry",
+            "id": "cordova-plugin-dialogs@~1.2.0"
+        },
+        "is_top_level": true,
+        "variables": {}
     }
 }
