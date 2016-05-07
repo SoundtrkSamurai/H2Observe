@@ -10,7 +10,6 @@
                 if (window.StatusBar) {
                     StatusBar.styleDefault();
                 }
-                $state.go('app.map');
             });
         })
         .config(function ($stateProvider, $urlRouterProvider) {
