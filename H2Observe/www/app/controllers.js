@@ -61,7 +61,6 @@
                 map.on('locationfound', function (e) {
                     controller.currentLocation = e.latlng;
                     $ionicLoading.hide();
-                    map.setView(e.latlng, 14);
                 });
             });
             //controller.GetGeoLocation = function () {
@@ -99,8 +98,14 @@
         controller.initialize();
     }])
 
-    .controller('bluetoothController', [function () {
+    .controller('bluetoothController', ['$cordovaBluetoothLE', function ($cordovaBluetoohLE) {
         var controller = this;
+        ionic.Platform.ready(function () {
+            $cordovaBluetoohLE.initialize({ request: true })
+            .then(null,
+            function (obj) { },
+            function (obj) { });
+        });
     }])
 
     //errorCtrl managed the display of error messages bubbled up from other controllers, directives, myappService
