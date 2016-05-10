@@ -98,14 +98,200 @@
         controller.initialize();
     }])
 
-    .controller('bluetoothController', ['$cordovaBluetoothLE', function ($cordovaBluetoohLE) {
+    .controller('bluetoothController', ['$state', '$log', '$rootScope', '$cordovaBluetoothLE', function ($state, $log, $rootScope, $cordovaBluetoohLE) {
         var controller = this;
         ionic.Platform.ready(function () {
-            $cordovaBluetoohLE.initialize({ request: true })
-            .then(null,
-            function (obj) { },
-            function (obj) { });
+            
         });
+
+        $rootScope.devices = {};
+
+        controller.clear = function() {
+            for (var address in $rootScope.devices) {
+                if ($rootScope.devices.hasOwnProperty(address)) {
+                    $cordovaBluetoothLE.close({address: address});
+                }
+            }
+
+            $rootScope.devices = {};
+        };
+
+        controller.delete = function(address) {
+            $cordovaBluetoothLE.close({address: address});
+            delete $rootScope.devices[address];
+        };
+
+        controller.goToDevice = function(device) {
+            $state.go("tab.device", {address:device.address});
+        };
+
+        $rootScope.isEmpty = function() {
+            if (Object.keys($rootScope.devices).length === 0) {
+                return true;
+            }
+            return false;
+        };
+
+        $rootScope.initialize = function() {
+            var params = {
+                request: true,
+                //restoreKey: "bluetooth-test-app"
+            };
+
+            $log.log("Initialize : " + JSON.stringify(params));
+
+            $cordovaBluetoothLE.initialize(params).then(null, function(obj) {
+                $log.log("Initialize Error : " + JSON.stringify(obj)); //Should only happen when testing in browser
+            }, function(obj) {
+                $log.log("Initialize Success : " + JSON.stringify(obj));
+            });
+        };
+
+        $rootScope.enable = function() {
+            $log.log("Enable");
+
+            $cordovaBluetoothLE.enable().then(null, function(obj) {
+                $log.log("Enable Error : " + JSON.stringify(obj));
+            });
+        };
+
+        $rootScope.disable = function() {
+            $log.log("Disable");
+
+            $cordovaBluetoothLE.disable().then(null, function(obj) {
+                $log.log("Disable Error : " + JSON.stringify(obj));
+            });
+        };
+
+        $rootScope.startScan = function() {
+            var params = {
+                services:[],
+                allowDuplicates: false,
+                //scanTimeout: 15000,
+            };
+
+            if (window.cordova) {
+                params.scanMode = bluetoothle.SCAN_MODE_LOW_POWER;
+                params.matchMode = bluetoothle.MATCH_MODE_STICKY;
+                params.matchNum = bluetoothle.MATCH_NUM_ONE_ADVERTISEMENT;
+                //params.callbackType = bluetoothle.CALLBACK_TYPE_FIRST_MATCH;
+            }
+
+            $log.log("Start Scan : " + JSON.stringify(params));
+
+            $cordovaBluetoothLE.startScan(params).then(function(obj) {
+                $log.log("Start Scan Auto Stop : " + JSON.stringify(obj));
+            }, function(obj) {
+                $log.log("Start Scan Error : " + JSON.stringify(obj));
+            }, function(obj) {
+                $log.log("Start Scan Success : " + JSON.stringify(obj));
+
+                addDevice(obj);
+            });
+        };
+
+        $rootScope.stopScan = function() {
+            $log.log("Stop Scan");
+
+            $cordovaBluetoothLE.stopScan().then(function(obj) {
+                $log.log("Stop Scan Success : " + JSON.stringify(obj));
+            }, function(obj) {
+                $log.log("Stop Scan Error : " + JSON.stringify(obj));
+            });
+        };
+
+        $rootScope.retrieveConnected = function() {
+            var params = {services:["180D"]};
+
+            $log.log("Retrieve Connected : " + JSON.stringify(params));
+
+            $cordovaBluetoothLE.retrieveConnected(params).then(function(obj) {
+                $log.log("Retrieve Connected Success : " + JSON.stringify(obj));
+
+                for (var i = 0; i < obj.length; i++) {
+                    addDevice(obj[i]);
+                }
+            }, function(obj) {
+                $log.log("Retrieve Connected Error : " + JSON.stringify(obj));
+            });
+        };
+
+        $rootScope.isInitialized = function() {
+            $log.log("Is Initialized");
+
+            $cordovaBluetoothLE.isInitialized().then(function(obj) {
+                $log.log("Is Initialized Success : " + JSON.stringify(obj));
+            });
+        };
+
+        $rootScope.isEnabled = function() {
+            $log.log("Is Enabled");
+
+            $cordovaBluetoothLE.isEnabled().then(function(obj) {
+                $log.log("Is Enabled Success : " + JSON.stringify(obj));
+            });
+        };
+
+        $rootScope.isScanning = function() {
+            $log.log("Is Scanning");
+
+            $cordovaBluetoothLE.isScanning().then(function(obj) {
+                $log.log("Is Scanning Success : " + JSON.stringify(obj));
+            });
+        };
+
+        function addDevice(obj) {
+            if (obj.status == "scanStarted") {
+                return;
+            }
+
+            if ($rootScope.devices[obj.address] !== undefined) {
+                return;
+            }
+
+            obj.services = {};
+            $rootScope.devices[obj.address] = obj;
+        }
+
+        $rootScope.hasPermission = function() {
+            $log.log("Has Permission");
+
+            $cordovaBluetoothLE.hasPermission().then(function(obj) {
+                $log.log("Has Permission Success : " + JSON.stringify(obj));
+            }, function(obj) {
+                $log.log("Has Permission Error : " + JSON.stringify(obj));
+            });
+        };
+
+        $rootScope.requestPermission = function() {
+            $log.log("Request Permission");
+
+            $cordovaBluetoothLE.requestPermission().then(function(obj) {
+                $log.log("Request Permission Success : " + JSON.stringify(obj));
+            }, function(obj) {
+                $log.log("Request Permission Error : " + JSON.stringify(obj));
+            });
+        };
+
+        $rootScope.isLocationEnabled = function() {
+            $log.log("Is Location Enabled");
+
+            $cordovaBluetoothLE.isLocationEnabled().then(function(obj) {
+                $log.log("Is Location Enabled Success : " + JSON.stringify(obj));
+            }, function(obj) {
+                $log.log("Is Location Enabled Error : " + JSON.stringify(obj));
+            });
+        };
+
+        $rootScope.requestLocation = function() {
+            $log.log("Request Location");
+
+            $cordovaBluetoothLE.requestLocation().then(function(obj) {
+                $log.log("Request Location Success : " + JSON.stringify(obj));
+            }, function(obj) {
+                $log.log("Request Location Error : " + JSON.stringify(obj));
+            });
+        };
     }])
 
     //errorCtrl managed the display of error messages bubbled up from other controllers, directives, myappService
