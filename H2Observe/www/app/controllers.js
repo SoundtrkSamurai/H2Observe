@@ -98,11 +98,21 @@
         controller.initialize();
     }])
 
-    .controller('bluetoothController', ['$state', '$log', '$rootScope', '$cordovaBluetoothLE', function ($state, $log, $rootScope, $cordovaBluetoohLE) {
+    .controller('bluetoothController', ['$cordovaBluetoothLE', '$ionicPlatform', '$ionicLoading', '$state', '$log', '$rootScope', function ($cordovaBluetoothLE, $ionicPlatform, $ionicLoading, $state, $log, $rootScope) {
         var controller = this;
-        ionic.Platform.ready(function () {
-            
-        });
+
+        function startScan() {
+            $ionicLoading.show({ template: 'Scaning for devices...' });
+            if (window.cordova.platformId === 'windows') {
+                $rootScope.retrieveConnected();
+            } else {
+                $rootScope.startScan();
+            }
+        }
+
+        function stopScan() {
+            $rootScope.stopScan();
+        }
 
         $rootScope.devices = {};
 
@@ -135,15 +145,20 @@
         $rootScope.initialize = function() {
             var params = {
                 request: true,
-                //restoreKey: "bluetooth-test-app"
+                restoreKey: "h2observe-app"
             };
 
             $log.log("Initialize : " + JSON.stringify(params));
 
-            $cordovaBluetoothLE.initialize(params).then(null, function(obj) {
-                $log.log("Initialize Error : " + JSON.stringify(obj)); //Should only happen when testing in browser
-            }, function(obj) {
+            $cordovaBluetoothLE.initialize(params).then(null, function(reason) {
+                $log.error("Initialize Error : " + JSON.stringify(reason)); //Should only happen when testing in browser
+                
+
+            }, function(result) {
                 $log.log("Initialize Success : " + JSON.stringify(obj));
+                if (result.status && result.status == 'enabled') {
+                    startScan();
+                }
             });
         };
 
@@ -167,7 +182,7 @@
             var params = {
                 services:[],
                 allowDuplicates: false,
-                //scanTimeout: 15000,
+                scanTimeout: 15000,
             };
 
             if (window.cordova) {
@@ -184,9 +199,13 @@
             }, function(obj) {
                 $log.log("Start Scan Error : " + JSON.stringify(obj));
             }, function(obj) {
-                $log.log("Start Scan Success : " + JSON.stringify(obj));
-
-                addDevice(obj);
+                if (obj.status == 'scanResult') {
+                    $ionicLoading.hide();
+                    $log.log('Device found : ' + JSON.stringify(obj));
+                    addDevice(obj);
+                } else if (obj.status == 'scanStarted') {
+                    $log.log("Start Scan Success : " + JSON.stringify(obj));
+                }
             });
         };
 
@@ -195,13 +214,18 @@
 
             $cordovaBluetoothLE.stopScan().then(function(obj) {
                 $log.log("Stop Scan Success : " + JSON.stringify(obj));
+                if ($rootScope.devices.length) {
+                    $log.log('NO DEVICES FOUND!');
+                } else {
+                    $log.log('Found ' + $rootScope.devices.length + 'devices.');
+                }
             }, function(obj) {
                 $log.log("Stop Scan Error : " + JSON.stringify(obj));
             });
         };
 
         $rootScope.retrieveConnected = function() {
-            var params = {services:["180D"]};
+            var params = {services:[]};
 
             $log.log("Retrieve Connected : " + JSON.stringify(params));
 
@@ -211,8 +235,9 @@
                 for (var i = 0; i < obj.length; i++) {
                     addDevice(obj[i]);
                 }
+                $ionicLoading.hide();
             }, function(obj) {
-                $log.log("Retrieve Connected Error : " + JSON.stringify(obj));
+                $log.error("Retrieve Connected Error : " + JSON.stringify(obj));
             });
         };
 
@@ -292,6 +317,10 @@
                 $log.log("Request Location Error : " + JSON.stringify(obj));
             });
         };
+
+        $ionicPlatform.ready(function () {
+            $rootScope.initialize();
+        });
     }])
 
     //errorCtrl managed the display of error messages bubbled up from other controllers, directives, myappService
@@ -318,5 +347,13 @@
             //manually apply given the way this might bubble up async
             $scope.$apply();
         });
-    }]);
+    }])
+    .filter('null', function () {
+        return function (value) {
+            if (value === null || value === undefined) {
+                return "<null>";
+            }
+            return value;
+        };
+    });
 })();

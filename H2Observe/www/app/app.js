@@ -1,7 +1,7 @@
 ﻿(function () {
     "use strict";
 
-    angular.module("h2observe", ['ionic', 'myapp.controllers', 'myapp.services', 'ngCordova', 'ui-leaflet'])
+    angular.module("h2observe", ['ionic', 'myapp.controllers', 'myapp.services', 'ngCordova', 'ui-leaflet', 'ngCordovaBluetoothLE'])
         .run(function ($state, $ionicPlatform) {
             $ionicPlatform.ready(function () {
                 if (window.cordova && window.cordova.plugins && window.cordova.plugins.Keyboard) {
