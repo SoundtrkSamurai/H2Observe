@@ -2086,7 +2086,7 @@ function toDebugString(obj) {
   $HttpProvider,
   $HttpBackendProvider,
   $LocationProvider,
-  $LogProvider,
+  // $logProvider,
   $ParseProvider,
   $RootScopeProvider,
   $QProvider,
@@ -2241,7 +2241,7 @@ function publishExternalAPI(angular) {
         $http: $HttpProvider,
         $httpBackend: $HttpBackendProvider,
         $location: $LocationProvider,
-        $log: $LogProvider,
+        // $log: // $logProvider,
         $parse: $ParseProvider,
         $rootScope: $RootScopeProvider,
         $q: $QProvider,
@@ -3720,14 +3720,14 @@ function annotate(fn, strictDi, name) {
  * service.
  *
  * Service provider names start with the name of the service they provide followed by `Provider`.
- * For example, the {@link ng.$log $log} service has a provider called
- * {@link ng.$logProvider $logProvider}.
+ * For example, the {@link ng.// $log // $log} service has a provider called
+ * {@link ng.// $logProvider // $logProvider}.
  *
  * Service provider objects can have additional methods which allow configuration of the provider
  * and its service. Importantly, you can configure what kind of service is created by the `$get`
- * method, or how that service will act. For example, the {@link ng.$logProvider $logProvider} has a
- * method {@link ng.$logProvider#debugEnabled debugEnabled}
- * which lets you specify whether the {@link ng.$log $log} service will log debug messages to the
+ * method, or how that service will act. For example, the {@link ng.// $logProvider // $logProvider} has a
+ * method {@link ng.// $logProvider#debugEnabled debugEnabled}
+ * which lets you specify whether the {@link ng.// $log // $log} service will log debug messages to the
  * console or not.
  *
  * @param {string} name The name of the instance. NOTE: the provider will be available under `name +
@@ -3962,10 +3962,10 @@ function annotate(fn, strictDi, name) {
  *      decorated or delegated to.
  *
  * @example
- * Here we decorate the {@link ng.$log $log} service to convert warnings to errors by intercepting
- * calls to {@link ng.$log#error $log.warn()}.
+ * Here we decorate the {@link ng.// $log // $log} service to convert warnings to errors by intercepting
+ * calls to {@link ng.// $log#error // $log.warn()}.
  * ```js
- *   $provide.decorator('$log', ['$delegate', function($delegate) {
+ *   $provide.decorator('// $log', ['$delegate', function($delegate) {
  *     $delegate.warn = $delegate.error;
  *     return $delegate;
  *   }]);
@@ -4861,7 +4861,7 @@ function $$AsyncCallbackProvider() {
  * ! This is a private undocumented service !
  *
  * @name $browser
- * @requires $log
+ * @requires // $log
  * @description
  * This object has two goals:
  *
@@ -4875,10 +4875,10 @@ function $$AsyncCallbackProvider() {
 /**
  * @param {object} window The global window object.
  * @param {object} document jQuery wrapped document.
- * @param {object} $log window.console or an object with the same interface.
+ * @param {object} // $log window.console or an object with the same interface.
  * @param {object} $sniffer $sniffer service
  */
-function Browser(window, document, $log, $sniffer) {
+function Browser(window, document, // $log, $sniffer) {
   var self = this,
       rawDocument = document[0],
       location = window.location,
@@ -4910,7 +4910,7 @@ function Browser(window, document, $log, $sniffer) {
           try {
             outstandingRequestCallbacks.pop()();
           } catch (e) {
-            $log.error(e);
+            // $log.error(e);
           }
         }
       }
@@ -5232,7 +5232,7 @@ function Browser(window, document, $log, $sniffer) {
           // - 20 cookies per unique domain
           // - 4096 bytes per cookie
           if (cookieLength > 4096) {
-            $log.warn("Cookie '" + name +
+            // $log.warn("Cookie '" + name +
               "' possibly not set or overflowed because it was too large (" +
               cookieLength + " > 4096 bytes)!");
           }
@@ -5312,9 +5312,9 @@ function Browser(window, document, $log, $sniffer) {
 }
 
 function $BrowserProvider() {
-  this.$get = ['$window', '$log', '$sniffer', '$document',
-      function($window, $log, $sniffer, $document) {
-        return new Browser($window, $document, $log, $sniffer);
+  this.$get = ['$window', '// $log', '$sniffer', '$document',
+      function($window, // $log, $sniffer, $document) {
+        return new Browser($window, $document, // $log, $sniffer);
       }];
 }
 
@@ -8514,11 +8514,11 @@ function $DocumentProvider() {
 /**
  * @ngdoc service
  * @name $exceptionHandler
- * @requires ng.$log
+ * @requires ng.// $log
  *
  * @description
  * Any uncaught exception in angular expressions is delegated to this service.
- * The default implementation simply delegates to `$log.error` which logs it into
+ * The default implementation simply delegates to `// $log.error` which logs it into
  * the browser console.
  *
  * In unit tests, if `angular-mocks.js` is loaded, this service is overridden by
@@ -8552,9 +8552,9 @@ function $DocumentProvider() {
  *
  */
 function $ExceptionHandlerProvider() {
-  this.$get = ['$log', function($log) {
+  this.$get = ['// $log', function(// $log) {
     return function(exception, cause) {
-      $log.error.apply($log, arguments);
+      // $log.error.apply(// $log, arguments);
     };
   }];
 }
@@ -9573,7 +9573,7 @@ function $HttpProvider() {
      * Makes the request.
      *
      * !!! ACCESSES CLOSURE VARS:
-     * $httpBackend, defaults, $log, $rootScope, defaultCache, $http.pendingRequests
+     * $httpBackend, defaults, // $log, $rootScope, defaultCache, $http.pendingRequests
      */
     function sendReq(config, reqData) {
       var deferred = $q.defer(),
@@ -11457,7 +11457,7 @@ function $LocationProvider() {
 
 /**
  * @ngdoc service
- * @name $log
+ * @name // $log
  * @requires $window
  *
  * @description
@@ -11467,14 +11467,14 @@ function $LocationProvider() {
  * The main purpose of this service is to simplify debugging and troubleshooting.
  *
  * The default is to log `debug` messages. You can use
- * {@link ng.$logProvider ng.$logProvider#debugEnabled} to change this.
+ * {@link ng.// $logProvider ng.// $logProvider#debugEnabled} to change this.
  *
  * @example
    <example module="logExample">
      <file name="script.js">
        angular.module('logExample', [])
-         .controller('LogController', ['$scope', '$log', function($scope, $log) {
-           $scope.$log = $log;
+         .controller('LogController', ['$scope', '// $log', function($scope, // $log) {
+           $scope.// $log = // $log;
            $scope.message = 'Hello World!';
          }]);
      </file>
@@ -11483,10 +11483,10 @@ function $LocationProvider() {
          <p>Reload this page with open console, enter text and hit the log button...</p>
          Message:
          <input type="text" ng-model="message"/>
-         <button ng-click="$log.log(message)">log</button>
-         <button ng-click="$log.warn(message)">warn</button>
-         <button ng-click="$log.info(message)">info</button>
-         <button ng-click="$log.error(message)">error</button>
+         <button ng-click="// $log.log(message)">log</button>
+         <button ng-click="// $log.warn(message)">warn</button>
+         <button ng-click="// $log.info(message)">info</button>
+         <button ng-click="// $log.error(message)">error</button>
        </div>
      </file>
    </example>
@@ -11494,17 +11494,17 @@ function $LocationProvider() {
 
 /**
  * @ngdoc provider
- * @name $logProvider
+ * @name // $logProvider
  * @description
- * Use the `$logProvider` to configure how the application logs messages
+ * Use the `// $logProvider` to configure how the application logs messages
  */
-function $LogProvider() {
+function // $logProvider() {
   var debug = true,
       self = this;
 
   /**
    * @ngdoc method
-   * @name $logProvider#debugEnabled
+   * @name // $logProvider#debugEnabled
    * @description
    * @param {boolean=} flag enable or disable debug level messages
    * @returns {*} current value if used as getter or itself (chaining) if used as setter
@@ -11522,7 +11522,7 @@ function $LogProvider() {
     return {
       /**
        * @ngdoc method
-       * @name $log#log
+       * @name // $log#log
        *
        * @description
        * Write a log message
@@ -11531,7 +11531,7 @@ function $LogProvider() {
 
       /**
        * @ngdoc method
-       * @name $log#info
+       * @name // $log#info
        *
        * @description
        * Write an information message
@@ -11540,7 +11540,7 @@ function $LogProvider() {
 
       /**
        * @ngdoc method
-       * @name $log#warn
+       * @name // $log#warn
        *
        * @description
        * Write a warning message
@@ -11549,7 +11549,7 @@ function $LogProvider() {
 
       /**
        * @ngdoc method
-       * @name $log#error
+       * @name // $log#error
        *
        * @description
        * Write an error message
@@ -11558,7 +11558,7 @@ function $LogProvider() {
 
       /**
        * @ngdoc method
-       * @name $log#debug
+       * @name // $log#debug
        *
        * @description
        * Write a debug message

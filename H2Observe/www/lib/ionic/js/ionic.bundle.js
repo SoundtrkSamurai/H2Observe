@@ -53644,7 +53644,6 @@ function($state, $ionicConfig) {
           // register, update and transition to the new view
           navViewCtrl.register(viewLocals);
         }
-
       };
     }
   };

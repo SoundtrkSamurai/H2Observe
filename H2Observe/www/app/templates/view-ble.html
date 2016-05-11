@@ -1,8 +1,9 @@
 ﻿<ion-view view-title="Bluetooth">
     <ion-content class="padding">
-       <ion-list>
-           <ion-item collection-item="device in devices track by device.address">
-               {{device | null}}
+        <button class="button button-block button-positive" ng-click="initialize()">Search for Devices</button>
+        <ion-list>
+           <ion-item ng-repeat="device in devices track by device.address">
+               {{device.name}}
            </ion-item>
        </ion-list>
     </ion-content>
