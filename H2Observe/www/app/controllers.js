@@ -137,18 +137,6 @@
             }
         }
 
-        function connect(address) {
-
-           // log('Connecting to device: ' + address + "...", "status");
-            if (cordova.platformId === "windows") {
-                getDeviceServices(address);
-            }
-            else {
-                stopScan();
-                $rootScope.connect(address);
-            }
-        }
-
         function stopScan() {
             $rootScope.stopScan();
         }
@@ -203,6 +191,18 @@
         controller.goToDevice = function (device) {
             $state.go("tab.device", { address: device.address });
         };
+
+        controller.connect = function (address) {
+
+            // log('Connecting to device: ' + address + "...", "status");
+            if (cordova.platformId === "windows") {
+                getDeviceServices(address);
+            }
+            else {
+                stopScan();
+                $rootScope.connect(address);
+            }
+        }
 
         $rootScope.devices = {};
 
@@ -304,6 +304,20 @@
 
                     for (var i = 0; i < obj.services.length; i++) {
                         addService({ uuid: obj.services[i] }, device);
+
+                        var serviceNew = device.services[service.uuid];
+                        var characteristics = service.characteristics;
+
+                        for (var j = 0; j < characteristics.length; j++) {
+                            var characteristic = characteristics[j];
+                            addCharacteristic(characteristic, serviceNew);
+                            var characteristicNew = serviceNew.characteristics[characteristic.uuid];
+                            var descriptors = characteristic.descriptors;
+                            for (var k = 0; k < descriptors.length; k++) {
+                                var descriptor = descriptors[k];
+                                addDescriptor(descriptor, characteristicNew);
+                            }
+                        }
                     }
                 },
                 function (obj) {
