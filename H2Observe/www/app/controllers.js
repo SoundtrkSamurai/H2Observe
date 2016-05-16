@@ -313,7 +313,7 @@
 
                         _.each(services, function (service) {
                             addService({ uuid: service }, device);
-                            $rootScope.characteristics({address: obj.address, service: service});
+                            $rootScope.characteristics(obj.address, service);
                         });
                     }
                 },
@@ -372,7 +372,8 @@
                     }
                 },
                 function (reason) {
-            });
+                }
+            );
         };
 
         $rootScope.initialize = function () {
