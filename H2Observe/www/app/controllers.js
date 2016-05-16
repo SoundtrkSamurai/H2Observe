@@ -306,18 +306,15 @@
             $cordovaBluetoothLE.services(params)
             .then(
                 function (obj) {
-                    //Log.add("Services Success : " + JSON.stringify(obj));
-                    var device = $rootScope.devices[obj.address];
-                    var services = obj.services;
-                    for (var i = 0; i < services.length; i++) {
-                        var service = services[i];
-                        addService({ uuid: service }, device);
+                    if (obj.status === 'services') {
+                        //Log.add("Services Success : " + JSON.stringify(obj));
+                        var device = $rootScope.devices[obj.address];
+                        var services = obj.services;
 
-                        if (obj.status === 'services') {
-                            _.each(services, function (serviceIdx) {
-                                $rootScope.characteristics({ address: obj.address, service: serviceIdx });
-                            });
-                        }
+                        _.each(services, function (service) {
+                            addService({ uuid: service }, device);
+                            $rootScope.characteristics({address: obj.address, service: service});
+                        });
                     }
                 },
                 function (obj) {
@@ -343,7 +340,8 @@
                         var service = device.services[result.service];
 
                         _.each(result.characteristics, function (characteristic) {
-                            addCharacteristic(characteristic, service);
+                            addCharacteristic({ uuid: characteristic }, service);
+                            $rootScope.descriptors(result.address, service, characteristic);
                         });
                     }
                 },
@@ -352,7 +350,30 @@
             );
         };
 
-       
+        $rootScope.descriptors = function (address, service, characteristic) {
+            var params = {
+                address: address,
+                service: service,
+                characteristic: characteristic,
+                timeout: 5000
+            };
+
+            $cordovaBluetoothLE.descriptors(params)
+            .then(
+                function (result) {
+                    if (result.status === 'descriptors') {
+                        var device = $rootScope.devices[result.address];
+                        var service = device.services[result.service];
+                        var characteristic = service.characteristics[result.characteristic];
+
+                        _.each(result.descriptors, function (descriptor) {
+                            addDescriptor({ uuid: descriptor }, characteristic);
+                        });
+                    }
+                },
+                function (reason) {
+            });
+        };
 
         $rootScope.initialize = function () {
             var params = {
