@@ -109,13 +109,20 @@
             }
         }
 
-        function addDevice(result) {
-            if ($rootScope.devices[result.address] !== undefined) {
+        function addDevice(device) {
+            if ($rootScope.devices[device.address] !== undefined) {
                 return false;
             } else {
-                result.services = {};
-                $rootScope.devices[result.address] = result;
+                device.services = {};
+                $rootScope.devices[device.address] = device;
             }
+        }
+
+        function addCharacteristic(characteristic, service) {
+            if (service.characteristics[characteristic.uuid] !== undefined) {
+                return;
+            }
+            service.characteristics[characteristic.uuid] = { uuid: characteristic.uuid, descriptors: {}, properties: characteristic.properties };
         }
 
         function stopScan() {
@@ -244,7 +251,7 @@
 
                     for (var i = 0; i < services.length; i++) {
                         var service = services[i];
-                        addService(service, device);
+                        addService({ uuid: service }, device);
 
                         var serviceNew = device.services[service.uuid];
                         var characteristics = service.characteristics;
@@ -301,22 +308,15 @@
                 function (obj) {
                     //Log.add("Services Success : " + JSON.stringify(obj));
                     var device = $rootScope.devices[obj.address];
+                    var services = obj.services;
+                    for (var i = 0; i < services.length; i++) {
+                        var service = services[i];
+                        addService({ uuid: service }, device);
 
-                    for (var i = 0; i < obj.services.length; i++) {
-                        addService({ uuid: obj.services[i] }, device);
-
-                        var serviceNew = device.services[service.uuid];
-                        var characteristics = service.characteristics;
-
-                        for (var j = 0; j < characteristics.length; j++) {
-                            var characteristic = characteristics[j];
-                            addCharacteristic(characteristic, serviceNew);
-                            var characteristicNew = serviceNew.characteristics[characteristic.uuid];
-                            var descriptors = characteristic.descriptors;
-                            for (var k = 0; k < descriptors.length; k++) {
-                                var descriptor = descriptors[k];
-                                addDescriptor(descriptor, characteristicNew);
-                            }
+                        if (obj.status === 'services') {
+                            _.each(services, function (serviceIdx) {
+                                $rootScope.characteristics({ address: obj.address, service: serviceIdx });
+                            });
                         }
                     }
                 },
@@ -326,7 +326,35 @@
             );
         };
 
-        $rootScope.initialize = function() {
+        $rootScope.characteristics = function (address, service) {
+            var params = {
+                address: address,
+                service: service,
+                characteristics: [],
+                timeout: 5000
+            };
+
+            $cordovaBluetoothLE.characteristics(params)
+            .then(
+                function (result) {
+                    if (result.status === 'characteristics') {
+
+                        var device = $rootScope.devices[result.address];
+                        var service = device.services[result.service];
+
+                        _.each(result.characteristics, function (characteristic) {
+                            addCharacteristic(characteristic, service);
+                        });
+                    }
+                },
+                function (reason) {
+                }
+            );
+        };
+
+       
+
+        $rootScope.initialize = function () {
             var params = {
                 request: true,
                 restoreKey: "h2observe-app"
