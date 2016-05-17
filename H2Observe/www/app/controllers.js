@@ -125,10 +125,6 @@
             service.characteristics[characteristic.uuid] = { uuid: characteristic.uuid, descriptors: {}, properties: characteristic.properties };
         }
 
-        function stopScan() {
-            $rootScope.stopScan();
-        }
-
         function getDeviceServices(address) {
 
             // log("Getting device services...", "status");
@@ -147,18 +143,6 @@
         function stopScan() {
             $rootScope.stopScan();
         }
-
-        function stopScanSuccess() {
-
-            if (!foundDevices.length) {
-
-                log("NO DEVICES FOUND");
-            }
-            else {
-
-                log("Found " + foundDevices.length + " devices.", "status");
-            }
-        }     
 
         function addService(service, device) {
             if (device.services[service.uuid] !== undefined) {
@@ -298,7 +282,7 @@
         $rootScope.services = function (address) {
             var params = {
                 address: address,
-                services: [],
+                services: ['6e400001-b5a3-f393-e0a9-e50e24dcca9e'],
                 timeout: 5000
             };
 
@@ -327,7 +311,7 @@
             var params = {
                 address: address,
                 service: service,
-                characteristics: [],
+                characteristics: ['6e400002-b5a3-f393-e0a9-e50e24dcca9e', '6e400003-b5a3-f393-e0a9-e50e24dcca9e'],
                 timeout: 5000
             };
 
@@ -384,7 +368,8 @@
 
             // $log.log("Initialize : " + JSON.stringify(params));
 
-            $cordovaBluetoothLE.initialize(params).then(null, function(reason) {
+            $cordovaBluetoothLE.initialize(params).then(null,
+                function (reason) {
                 // $log.error("Initialize Error : " + JSON.stringify(reason)); //Should only happen when testing in browser
                 
 
@@ -468,15 +453,15 @@
 
         $rootScope.retrieveConnected = function() {
             var params = {
-                services: []
+                services: ['6e400001-b5a3-f393-e0a9-e50e24dcca9e']
             };
 
             // $log.log("Retrieve Connected : " + JSON.stringify(params));
             $cordovaBluetoothLE.retrieveConnected(params)
             .then(
-                function (result) {
-                    // $log.log("Retrieve Connected Success : " + JSON.stringify(obj));
-                    _.each(result, function (device) {
+                function (pairedDevices) {
+                    _.each(pairedDevices, function (device) {
+                        // $log.log("Retrieve Connected Success : " + JSON.stringify(obj));
                         addDevice(device);
                     });
                 },
