@@ -2,8 +2,9 @@
     <ion-content class="padding">
         <button class="button button-block button-positive" ng-click="initialize()">Search for Devices</button>
         <ion-list>
-           <ion-item ng-repeat="device in devices track by device.address" ng-click="bleCtrl.connect(device.address)">
-               {{device.name}}
+           <ion-item ng-repeat="device in devices track by device.address" ui-sref="app.bledevice({deviceId: device.address})">
+               <!--<a ui-sref="app.bledevice({deviceId: device.address})">{{device.name}}</a>-->
+               <span>{{device.name}}</span>
            </ion-item>
        </ion-list>
     </ion-content>

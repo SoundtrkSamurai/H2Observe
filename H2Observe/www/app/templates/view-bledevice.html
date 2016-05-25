@@ -1,0 +1,41 @@
+﻿<ion-view>
+    <ion-nav-bar>
+        <ion-nav-back-button>
+        </ion-nav-back-button>
+    </ion-nav-bar>
+    <ion-header-bar align-title="center" class="bar-positive">
+        <h1 class="title">{{selectedDevice.name | null}}</h1>
+    </ion-header-bar>
+    <ion-content>
+        <!--
+        <div class="row text-center">
+            <div class="col col-50"><a class="button button-balanced button-small" ng-click="connect(selectedDevice.address)">Connect</a></div>
+            <div class="col col-50"><a class="button button-balanced button-small" ng-click="reconnect(selectedDevice.address)">Reconnect</a></div>
+        </div>
+        <div class="row text-center">
+            <div class="col"><a class="button button-energized button-small" ng-click="disconnect(selectedDevice.address)">Disconnect</a></div>
+            <div class="col"><a class="button button-assertive button-small" ng-click="close(selectedDevice.address)">Close</a></div>
+        </div>
+        <div class="row text-center">
+            <div class="col"><a class="button button-balanced button-small" ng-click="discover(selectedDevice.address)">Discover</a></div>
+            <div class="col"><a class="button button-balanced button-small" ng-click="services(selectedDevice.address)">Services</a></div>
+        </div>
+        <div class="row text-center">
+            <div class="col"><a class="button button-balanced button-small" ng-click="wasConnected(selectedDevice.address)">Was Connected</a></div>
+            <div class="col"><a class="button button-balanced button-small" ng-click="isConnected(selectedDevice.address)">Is Connected</a></div>
+            <div class="col"><a class="button button-balanced button-small" ng-click="isDiscovered(selectedDevice.address)">Is Discovered</a></div>
+        </div>
+        <div class="row text-center">
+            <div class="col"><a class="button button-balanced button-small" ng-click="rssi(selectedDevice.address)">RSSI</a></div>
+            <div class="col"><a class="button button-balanced button-small" ng-click="mtu(selectedDevice.address)">MTU</a></div>
+            <div class="col"><a class="button button-balanced button-small" ng-click="requestConnectionPriority(selectedDevice.address)">Request Connection Priority</a></div>
+        </div>
+        -->
+        <ion-list>
+            <ion-item class="item-icon-right" ng-repeat="service in selectedDevice.services track by service.uuid" ng-click="goToService(service)">
+                {{service.uuid}}
+                <i class="icon ion-chevron-right"></i>
+            </ion-item>
+        </ion-list>
+    </ion-content>
+</ion-view>

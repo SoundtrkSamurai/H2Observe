@@ -30,11 +30,16 @@
                 templateUrl: 'app/templates/view-ble.html',
                 controller: 'bluetoothController as bleCtrl'
             })
+            .state('app.bledevice', {
+                url: '/bluetooth/device/:deviceId',
+                templateUrl: 'app/templates/view-bledevice.html',
+                controller: 'bluetoothDevice as bleDeviceCtrl'
+            })
             .state("app.home", {
                 url: "/home",
                 templateUrl: "app/templates/view-home.html",
                 controller: "homeCtrl"
             });
-            $urlRouterProvider.otherwise("/app/home");
+            $urlRouterProvider.otherwise("/app/map");
         });
 })();
