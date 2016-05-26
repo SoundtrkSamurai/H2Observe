@@ -6,6 +6,7 @@
     .controller("appController", [function () {
         var controller = this;
         controller.companyName = 'H2Observe';
+        controller.bleDeviceId = '6e400001-b5a3-f393-e0a9-e50e24dcca9e';
         controller.mapWidth = $('ion-content').css('width');
         controller.mapHeight = $('ion-content').css('height');
     }])
@@ -378,6 +379,7 @@
         controller.connect = function (address) {
 
             // log('Connecting to device: ' + address + "...", "status");
+
             if (cordova.platformId === "windows") {
                 getDeviceServices(address);
             }
