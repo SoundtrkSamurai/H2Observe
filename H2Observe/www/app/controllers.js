@@ -368,11 +368,8 @@
             if (platform === "android") {
                 $rootScope.discover(address);
             }
-            else if (platform === "windows") {
-                $rootScope.services(address);
-            }
             else {
-                // log("Unsupported platform: '" + window.cordova.platformId + "'", "error");
+                $rootScope.services(address);
             }
         }
 
@@ -538,10 +535,7 @@
             timeout: 5000
         };
 
-        // Log.add("Services : " + JSON.stringify(params));
-
         $cordovaBluetoothLE.services(params).then(function(obj) {
-            // Log.add("Services Success : " + JSON.stringify(obj));
 
             var device = $rootScope.devices[obj.address];
             var services = obj.services;
@@ -642,53 +636,7 @@
 
         };
 
-        $rootScope.subscribe = function(address, service, characteristic) {
-        var params = {
-            address:address,
-            service:service,
-            characteristic:characteristic,
-            timeout: 5000,
-            //subscribeTimeout: 5000
-        };
-
-        // Log.add("Subscribe : " + JSON.stringify(params));
-
-        $cordovaBluetoothLE.subscribe(params).then(function(obj) {
-            // Log.add("Subscribe Auto Unsubscribe : " + JSON.stringify(obj));
-        }, function(obj) {
-            // Log.add("Subscribe Error : " + JSON.stringify(obj));
-        }, function(obj) {
-            //// Log.add("Subscribe Success : " + JSON.stringify(obj));
-
-            if (obj.status == "subscribedResult") {
-            //// Log.add("Subscribed Result");
-            var bytes = $cordovaBluetoothLE.encodedStringToBytes(obj.value);
-            // Log.add("Subscribe Success ASCII (" + bytes.length + "): " + $cordovaBluetoothLE.bytesToString(bytes));
-            // Log.add("HEX (" + bytes.length + "): " + $cordovaBluetoothLE.bytesToHex(bytes));
-            } else if (obj.status == "subscribed") {
-            // Log.add("Subscribed");
-            } else {
-            // Log.add("Unexpected Subscribe Status");
-            }
-        });
-        };
-
-        $rootScope.unsubscribe = function(address, service, characteristic) {
-        var params = {
-            address: address,
-            service: service,
-            characteristic: characteristic,
-            timeout: 5000
-        };
-
-        // Log.add("Unsubscribe : " + JSON.stringify(params));
-
-        $cordovaBluetoothLE.unsubscribe(params).then(function(obj) {
-            // Log.add("Unsubscribe Success : " + JSON.stringify(obj));
-        }, function(obj) {
-            // Log.add("Unsubscribe Error : " + JSON.stringify(obj));
-        });
-        };
+       
 
         $rootScope.write = function(address, service, characteristic) {
         //Set this to something higher to verify queueing on read/write
@@ -853,6 +801,63 @@
       };
     })
 
+    .controller('ServiceCtrl', function($scope, $rootScope, $state, $stateParams, $cordovaBluetoothLE, Log) {
+        $scope.$on("$ionicView.beforeEnter", function () {
+            $rootScope.selectedService = $rootScope.selectedDevice.services[$stateParams.service];
+        });
+
+        $rootScope.subscribe = function (address, service, characteristic) {
+            var params = {
+                address: address,
+                service: service,
+                characteristic: characteristic,
+                timeout: 5000,
+                //subscribeTimeout: 5000
+            };
+
+            // Log.add("Subscribe : " + JSON.stringify(params));
+
+            $cordovaBluetoothLE.subscribe(params).then(function (obj) {
+                // Log.add("Subscribe Auto Unsubscribe : " + JSON.stringify(obj));
+            }, function (obj) {
+                // Log.add("Subscribe Error : " + JSON.stringify(obj));
+            }, function (obj) {
+                //// Log.add("Subscribe Success : " + JSON.stringify(obj));
+
+                if (obj.status == "subscribedResult") {
+                    //// Log.add("Subscribed Result");
+                    var bytes = $cordovaBluetoothLE.encodedStringToBytes(obj.value);
+                    // Log.add("Subscribe Success ASCII (" + bytes.length + "): " + $cordovaBluetoothLE.bytesToString(bytes));
+                    // Log.add("HEX (" + bytes.length + "): " + $cordovaBluetoothLE.bytesToHex(bytes));
+                } else if (obj.status == "subscribed") {
+                    // Log.add("Subscribed");
+                } else {
+                    // Log.add("Unexpected Subscribe Status");
+                }
+            });
+        };
+
+        $rootScope.unsubscribe = function (address, service, characteristic) {
+            var params = {
+                address: address,
+                service: service,
+                characteristic: characteristic,
+                timeout: 5000
+            };
+
+            // Log.add("Unsubscribe : " + JSON.stringify(params));
+
+            $cordovaBluetoothLE.unsubscribe(params).then(function (obj) {
+                // Log.add("Unsubscribe Success : " + JSON.stringify(obj));
+            }, function (obj) {
+                // Log.add("Unsubscribe Error : " + JSON.stringify(obj));
+            });
+        };
+
+        $scope.goToCharacteristic = function(characteristic) {
+            $state.go("tab.characteristic", {address:$rootScope.selectedDevice.address, service: $rootScope.selectedService.uuid, characteristic: characteristic.uuid});
+        };
+    })
     //errorCtrl managed the display of error messages bubbled up from other controllers, directives, myappService
     .controller("errorCtrl", ["$scope", "myappService", function ($scope, myappService) {
         //public properties that define the error message and if an error is present

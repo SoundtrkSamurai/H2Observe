@@ -35,6 +35,11 @@
                 templateUrl: 'app/templates/view-bledevice.html',
                 controller: 'bluetoothDevice as bleDeviceCtrl'
             })
+            .state('app.bleservice', {
+                url: '/bluetooth/device/:deviceId/service/:serviceId',
+                templateUrl: 'app/templates/view-bleservice.html',
+                controller: 'bluetoothService as bleSvcCtrl'
+            })
             .state("app.home", {
                 url: "/home",
                 templateUrl: "app/templates/view-home.html",
