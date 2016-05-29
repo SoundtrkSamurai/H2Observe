@@ -139,10 +139,6 @@
             delete $rootScope.devices[address];
         };
 
-        controller.goToDevice = function (device) {
-            $state.go("app.bledevice", { devideId: device.address });
-        };
-
         $rootScope.isEmpty = function () {
             if (Object.keys($rootScope.devices).length === 0) {
                 return true;
@@ -333,25 +329,11 @@
     
         var controller = this;
 
-        function addDescriptor(descriptor, characteristic) {
-            if (characteristic.descriptors[descriptor.uuid] !== undefined) {
-                return;
-            }
-            characteristic.descriptors[descriptor.uuid] = { uuid: descriptor.uuid };
-        }
-
         function addService(service, device) {
             if (device.services[service.uuid] !== undefined) {
                 return;
             }
             device.services[service.uuid] = { uuid: service.uuid, characteristics: {} };
-        }
-
-        function addCharacteristic(characteristic, service) {
-            if (service.characteristics[characteristic.uuid] !== undefined) {
-                return;
-            }
-            service.characteristics[characteristic.uuid] = { uuid: characteristic.uuid, descriptors: {}, properties: characteristic.properties };
         }
 
         function addDescriptor(descriptor, characteristic) {
@@ -542,38 +524,11 @@
 
             _.each(services, function (service) {
                 addService({ uuid: service }, device);
-                $rootScope.characteristics(obj.address, service);
+                // $rootScope.characteristics(obj.address, service);
             });
         }, function(obj) {
             // Log.add("Services Error : " + JSON.stringify(obj));
         });
-        };
-
-        $rootScope.characteristics = function (address, service) {
-            var params = {
-                address: address,
-                service: service,
-                characteristics: ['6e400002-b5a3-f393-e0a9-e50e24dcca9e', '6e400003-b5a3-f393-e0a9-e50e24dcca9e'],
-                timeout: 5000
-            };
-
-            $cordovaBluetoothLE.characteristics(params)
-            .then(
-                function (result) {
-                    if (result.status === 'characteristics') {
-
-                        var device = $rootScope.devices[result.address];
-                        var service = device.services[result.service];
-
-                        _.each(result.characteristics, function (characteristic) {
-                            addCharacteristic({ uuid: characteristic }, service);
-                            $rootScope.descriptors(result.address, service, characteristic);
-                        });
-                    }
-                },
-                function (reason) {
-                }
-            );
         };
 
         $rootScope.descriptors = function(address, service, characteristic) {
@@ -635,8 +590,6 @@
         }, 1, count);
 
         };
-
-       
 
         $rootScope.write = function(address, service, characteristic) {
         //Set this to something higher to verify queueing on read/write
@@ -801,10 +754,53 @@
       };
     })
 
-    .controller('ServiceCtrl', function($scope, $rootScope, $state, $stateParams, $cordovaBluetoothLE, Log) {
-        $scope.$on("$ionicView.beforeEnter", function () {
+    .controller('bluetoothService', function ($scope, $rootScope, $state, $stateParams, $cordovaBluetoothLE, Log) {
+
+        var controller = this;
+
+        function addCharacteristic(characteristic, service) {
+            if (service.characteristics[characteristic.uuid] !== undefined) {
+                return;
+            }
+            service.characteristics[characteristic.uuid] = { uuid: characteristic.uuid, descriptors: {}, properties: characteristic.properties };
+        }
+
+        controller.$on("$ionicView.beforeEnter", function () {
             $rootScope.selectedService = $rootScope.selectedDevice.services[$stateParams.service];
         });
+
+        controller.$on("$ionicView.enter", function () {
+            if ($rootScope.selectedSelected) {
+                $rootScope.characteristics($rootScope.selectedDevice.address, $rootScope.selectedService.uuid);
+            }
+        });
+
+        $rootScope.characteristics = function (address, service) {
+            var params = {
+                address: address,
+                service: service,
+                characteristics: ['6e400002-b5a3-f393-e0a9-e50e24dcca9e', '6e400003-b5a3-f393-e0a9-e50e24dcca9e'],
+                timeout: 5000
+            };
+
+            $cordovaBluetoothLE.characteristics(params)
+            .then(
+                function (result) {
+                    if (result.status === 'characteristics') {
+
+                        var device = $rootScope.devices[result.address];
+                        var service = device.services[result.service];
+
+                        _.each(result.characteristics, function (characteristic) {
+                            addCharacteristic({ uuid: characteristic }, service);
+                            // $rootScope.descriptors(result.address, service, characteristic);
+                        });
+                    }
+                },
+                function (reason) {
+                }
+            );
+        };
 
         $rootScope.subscribe = function (address, service, characteristic) {
             var params = {
@@ -858,6 +854,7 @@
             $state.go("tab.characteristic", {address:$rootScope.selectedDevice.address, service: $rootScope.selectedService.uuid, characteristic: characteristic.uuid});
         };
     })
+
     //errorCtrl managed the display of error messages bubbled up from other controllers, directives, myappService
     .controller("errorCtrl", ["$scope", "myappService", function ($scope, myappService) {
         //public properties that define the error message and if an error is present

@@ -32,7 +32,7 @@
         </div>
         -->
         <ion-list>
-            <ion-item ng-if="service.uuid == app.bleDeviceId" class="item-icon-right" ng-repeat="service in selectedDevice.services track by service.uuid" ng-click="goToService(service)">
+            <ion-item class="item-icon-right" ng-repeat="service in selectedDevice.services track by service.uuid" ui-sref="app.bleservice({deviceId: $rootScope.selectedDevice.address, serviceId: service.uuid})">
                 {{service.uuid}}
                 <i class="icon ion-chevron-right"></i>
             </ion-item>
