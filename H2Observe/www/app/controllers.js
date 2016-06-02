@@ -325,9 +325,11 @@
         });
     }])
 
-    .controller('bluetoothDevice', function($scope, $rootScope, $state, $stateParams, $ionicHistory, $cordovaBluetoothLE, $interval, $log) {
+    .controller('bluetoothDevice', ['$scope', '$rootScope', '$state', '$stateParams', '$ionicHistory', '$cordovaBluetoothLE', '$interval', '$log',
+
+        function ($scope, $rootScope, $state, $stateParams, $ionicHistory, $cordovaBluetoothLE, $interval, $log) {
     
-        var controller = this;
+        var controller = $scope;
 
         function addService(service, device) {
             if (device.services[service.uuid] !== undefined) {
@@ -368,18 +370,19 @@
             }
         }
 
-        $scope.$on("$ionicView.beforeEnter", function () {
+        controller.$on("$ionicView.beforeEnter", function () {
             $rootScope.selectedDevice = $rootScope.devices[$stateParams.deviceId];
         });
 
-        $scope.$on("$ionicView.enter", function () {
+        controller.$on("$ionicView.enter", function () {
             if ($rootScope.selectedDevice) {
                 controller.connect($rootScope.selectedDevice.address);
             }
         });
 
-        $scope.goToService = function (service) {
-        $state.go("tab.service", {address:$rootScope.selectedDevice.address, service: service.uuid});
+        controller.goToService = function (service) {
+            // $state.go("app.bleservice", { deviceId: $rootScope.selectedDevice.address, serviceId: service.uuid });
+            $rootScope.characteristics($rootScope.selectedDevice.address, service.uuid);
         };
 
         $rootScope.connect = function (address) {
@@ -547,12 +550,11 @@
             var device = $rootScope.devices[obj.address];
             var service = device.services[obj.service];
             var characteristic = service.characteristics[obj.characteristic];
-
             var descriptors = obj.descriptors;
 
-            for (var i = 0; i < descriptors.length; i++) {
-            addDescriptor({uuid: descriptors[i]}, characteristic);
-            }
+            _.each(descriptors, function (descriptor) {
+                addDescriptor({ uuid: descriptors }, characteristic);
+            });
         }, function(obj) {
             // Log.add("Descriptors Error : " + JSON.stringify(obj));
         });
@@ -563,7 +565,12 @@
         var count = 1;
 
         $interval(function() {
-            var params = {address:address, service:service, characteristic:characteristic, timeout: 5000};
+            var params = {
+                address: address,
+                service: service, 
+                characteristic: characteristic,
+                timeout: 5000
+            };
 
             //Uncomment if you'd like to force some errors
             /*var random = Math.random();
@@ -751,12 +758,9 @@
         }, function(obj) {
           // Log.add("Request Connection Priority Error : " + JSON.stringify(obj));
         });
-      };
-    })
+        };
 
-    .controller('bluetoothService', function ($scope, $rootScope, $state, $stateParams, $cordovaBluetoothLE, Log) {
-
-        var controller = this;
+            //
 
         function addCharacteristic(characteristic, service) {
             if (service.characteristics[characteristic.uuid] !== undefined) {
@@ -765,12 +769,90 @@
             service.characteristics[characteristic.uuid] = { uuid: characteristic.uuid, descriptors: {}, properties: characteristic.properties };
         }
 
+        $rootScope.characteristics = function (address, service) {
+            var params = {
+                address: address,
+                service: service,
+                characteristics: ['6e400002-b5a3-f393-e0a9-e50e24dcca9e', '6e400003-b5a3-f393-e0a9-e50e24dcca9e'],
+                timeout: 5000
+            };
+
+            $cordovaBluetoothLE.characteristics(params)
+            .then(
+                function (result) {
+                    if (result.status === 'characteristics') {
+
+                        var device = $rootScope.devices[result.address];
+                        var service = device.services[result.service];
+
+                        _.each(result.characteristics, function (characteristic) {
+                            addCharacteristic({ uuid: characteristic }, service);
+                            if(characteristic.uuid == '0003') {
+                                $rootScope.read(result.address, service.uuid, characteristic.uuid);
+                            } 
+                            // $rootScope.descriptors(result.address, service.uuid, characteristic.uuid);
+                        });
+                    }
+                },
+                function (reason) {
+                }
+            );
+        };
+
+        $rootScope.subscribe = function (address, service, characteristic) {
+            var params = {
+                address: address,
+                service: service,
+                characteristic: characteristic
+            };
+            // timeout: 5000 
+            //subscribeTimeout: 5000
+
+            // Log.add("Subscribe : " + JSON.stringify(params));
+
+            $cordovaBluetoothLE.subscribe(params).then(
+                function (obj) {
+                    // Log.add("Subscribe Auto Unsubscribe : " + JSON.stringify(obj));
+                    if (obj) {
+
+                    }
+                },
+                function (obj) {
+                    // Log.add("Subscribe Error : " + JSON.stringify(obj));
+                    if (obj) {
+    
+                    }
+                },
+                function (obj) {
+                //// Log.add("Subscribe Success : " + JSON.stringify(obj));
+
+                if (obj.status == "subscribedResult") {
+                    //// Log.add("Subscribed Result");
+                    var bytes = $cordovaBluetoothLE.encodedStringToBytes(obj.value);
+                    // Log.add("Subscribe Success ASCII (" + bytes.length + "): " + $cordovaBluetoothLE.bytesToString(bytes));
+                    // Log.add("HEX (" + bytes.length + "): " + $cordovaBluetoothLE.bytesToHex(bytes));
+                }
+                else if (obj.status == "subscribed") {
+                    // Log.add("Subscribed");
+                } else {
+                    // Log.add("Unexpected Subscribe Status");
+                }
+            });
+        };
+    }])
+
+    .controller('bluetoothService', ['$rootScope', '$state', '$stateParams', '$cordovaBluetoothLE', 'Log', function ($rootScope, $state, $stateParams, $cordovaBluetoothLE, Log) {
+
+        var controller = this;
+
+        
+
         controller.$on("$ionicView.beforeEnter", function () {
-            $rootScope.selectedService = $rootScope.selectedDevice.services[$stateParams.service];
+            $rootScope.selectedService = $rootScope.selectedDevice.services[$stateParams.serviceId];
         });
 
         controller.$on("$ionicView.enter", function () {
-            if ($rootScope.selectedSelected) {
+            if ($rootScope.selectedService) {
                 $rootScope.characteristics($rootScope.selectedDevice.address, $rootScope.selectedService.uuid);
             }
         });
@@ -786,7 +868,7 @@
             $cordovaBluetoothLE.characteristics(params)
             .then(
                 function (result) {
-                    if (result.status === 'characteristics') {
+                    if (result.status == 'characteristics') {
 
                         var device = $rootScope.devices[result.address];
                         var service = device.services[result.service];
@@ -853,7 +935,7 @@
         $scope.goToCharacteristic = function(characteristic) {
             $state.go("tab.characteristic", {address:$rootScope.selectedDevice.address, service: $rootScope.selectedService.uuid, characteristic: characteristic.uuid});
         };
-    })
+    }])
 
     //errorCtrl managed the display of error messages bubbled up from other controllers, directives, myappService
     .controller("errorCtrl", ["$scope", "myappService", function ($scope, myappService) {
